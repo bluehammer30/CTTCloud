@@ -1,0 +1,4 @@
+aws_account_id = "YOUR_AWS_ACCOUNT_ID"
+terraform_role = "TerraformAdmin"
+state_bucket   = "terraform-state-interview-ecs-ucjcduvm"
+dynamodb_table = "terraform-locks-interview-ecs"
