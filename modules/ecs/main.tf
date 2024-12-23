@@ -100,3 +100,70 @@ resource "aws_ecs_service" "main" {
     Environment = var.environment
   }
 }
+
+# CloudWatch Alarms for ECS
+resource "aws_cloudwatch_metric_alarm" "cpu_utilization_high" {
+  alarm_name          = "${var.project}-cpu-utilization-high-${var.environment}"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
+  period             = "300"
+  statistic          = "Average"
+  threshold          = "85"
+  alarm_description  = "CPU utilization has exceeded 85%"
+
+  dimensions = {
+    ClusterName = aws_ecs_cluster.main.name
+    ServiceName = aws_ecs_service.main.name
+  }
+
+  tags = {
+    Name        = "${var.project}-cpu-alarm-${var.environment}"
+    Environment = var.environment
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "memory_utilization_high" {
+  alarm_name          = "${var.project}-memory-utilization-high-${var.environment}"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "MemoryUtilization"
+  namespace           = "AWS/ECS"
+  period             = "300"
+  statistic          = "Average"
+  threshold          = "85"
+  alarm_description  = "Memory utilization has exceeded 85%"
+
+  dimensions = {
+    ClusterName = aws_ecs_cluster.main.name
+    ServiceName = aws_ecs_service.main.name
+  }
+
+  tags = {
+    Name        = "${var.project}-memory-alarm-${var.environment}"
+    Environment = var.environment
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "service_health" {
+  alarm_name          = "${var.project}-service-health-${var.environment}"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "RunningTaskCount"
+  namespace           = "ECS/ContainerInsights"
+  period             = "300"
+  statistic          = "Average"
+  threshold          = var.service_desired_count
+  alarm_description  = "Number of running tasks is less than desired count"
+
+  dimensions = {
+    ClusterName = aws_ecs_cluster.main.name
+    ServiceName = aws_ecs_service.main.name
+  }
+
+  tags = {
+    Name        = "${var.project}-service-health-${var.environment}"
+    Environment = var.environment
+  }
+}
